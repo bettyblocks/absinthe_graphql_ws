@@ -144,7 +144,7 @@ defmodule Absinthe.GraphqlWS.Transport do
   def handle_inbound(%{"id" => id, "type" => "subscribe", "payload" => payload}, %{handler: handler} = socket) do
     if function_exported?(handler, :handle_subscribe, 2) do
       case handler.handle_subscribe(payload, socket) do
-        {:ok, payload, socket} ->
+        {:ok, socket} ->
           payload
           |> handle_subscribe(id, socket)
         {:error, socket} ->
