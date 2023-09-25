@@ -141,9 +141,22 @@ defmodule Absinthe.GraphqlWS.Transport do
     close(4400, "Subscribe message received before ConnectionInit", socket)
   end
 
-  def handle_inbound(%{"id" => id, "type" => "subscribe", "payload" => payload}, socket) do
-    payload
-    |> handle_subscribe(id, socket)
+  def handle_inbound(%{"id" => id, "type" => "subscribe", "payload" => payload}, %{handler: handler} = socket) do
+    if function_exported?(handler, :handle_subscribe, 2) do
+      case handler.handle_subscribe(payload, socket) do
+        {:ok, payload, socket} ->
+          payload
+          |> handle_subscribe(id, socket)
+        {:error, socket} ->
+          close(4403, "Forbidden", socket)
+
+        {:error, message, socket} ->
+          close(4403, message, socket)
+      end
+    else
+      handle_subscribe(payload, id, socket)
+    end
+
   end
 
   def handle_inbound(%{"id" => id, "type" => "complete"}, socket) do
