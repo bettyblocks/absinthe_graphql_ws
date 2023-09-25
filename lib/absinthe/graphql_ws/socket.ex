@@ -129,6 +129,9 @@ defmodule Absinthe.GraphqlWS.Socket do
           | {:error, map(), socket()}
           | {:stop, term(), socket()}
 
+  @type subscribe() ::
+          {:ok, socket()} | {:error, socket()} | {:error, binary(), socket()}
+
   @doc """
   Handles messages that are sent to this process through `send/2`, which have not been caught
   by the default implementation. It must return a `t:reply_message/0`.
@@ -184,6 +187,8 @@ defmodule Absinthe.GraphqlWS.Socket do
       end
   """
   @callback handle_init(payload :: map(), socket()) :: Socket.init()
+
+  @callback handle_subscribe(payload :: map(), socket()) :: Socket.subscribe()
 
   @optional_callbacks handle_message: 2, handle_init: 2, handle_subscribe: 2
 
